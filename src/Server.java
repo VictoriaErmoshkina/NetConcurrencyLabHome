@@ -18,9 +18,18 @@ public class Server {
                 throw new NullPointerException("Too big number!");
 
             ServerSocket serverSocket = new ServerSocket(port);
+            while (true) {
+                Socket socket = serverSocket.accept();
 
-            Socket socket = serverSocket.accept();
-            InputStream inputStream = socket.getInputStream();
+                Thread thread = new Thread(new Session(socket));
+                thread.start();
+            }
+            /*Thread thread1 = new Thread(new Session(socket));
+            thread1.start();
+            Thread thread2 = new Thread(new Session(socket));
+            thread2.start();*/
+
+          /*  InputStream inputStream = socket.getInputStream();
             DataInputStream dataInputStream = new DataInputStream(inputStream);
 
             String message = dataInputStream.readUTF();
@@ -30,7 +39,7 @@ public class Server {
             while (!message.equals("QUIT")){
                 System.out.println(message);
                 message = dataInputStream.readUTF();
-            }
+            }*/
 
         } catch (IOException e) {}
     }
