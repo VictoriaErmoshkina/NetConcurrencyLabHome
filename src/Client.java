@@ -1,9 +1,7 @@
 /**
  * Created by Виктория on 15.02.2017.
  */
-import java.io.DataOutputStream;
-import java.io.IOException;
-import java.io.OutputStream;
+import java.io.*;
 import java.net.Socket;
 import java.util.Scanner;
 
@@ -22,15 +20,25 @@ public class Client {
             Socket socket = new Socket(host, port);
             OutputStream outputStream = socket.getOutputStream();
             DataOutputStream dataOutputStream = new DataOutputStream(outputStream);
-            dataOutputStream.writeUTF("Peace be with you");
 
-            Scanner in = new Scanner(System.in);
-            String message = "";
-            while (!message.equals("QUIT")){
-                System.out.print("Message: ");
-                message = in.nextLine();
-                dataOutputStream.writeUTF(message);
+            InputStream inputStream = socket.getInputStream();
+            DataInputStream dataInputStream = new DataInputStream(inputStream);
+            int connectingType = dataInputStream.readInt();
+            if (connectingType == 0){
+                System.out.println(dataInputStream.readUTF());
+
+                dataOutputStream.writeUTF("Peace be with you");
+
+                Scanner in = new Scanner(System.in);
+                String message = "";
+                while (!message.equals("QUIT")){
+                    System.out.print("Message: ");
+                    message = in.nextLine();
+                    dataOutputStream.writeUTF(message);
+                }
             }
+            else
+                System.out.println(dataInputStream.readUTF());
         }
         catch (IOException e) {}
     }

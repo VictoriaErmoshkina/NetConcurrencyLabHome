@@ -1,6 +1,7 @@
 /**
  * Created by Виктория on 15.02.2017.
  */
+
 import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -8,6 +9,7 @@ import java.net.Socket;
 public class Server {
     public static void main(String[] args) {
         try {
+            int MAX_NUMBER_OF_SESSIONS = 5;
             int port;
             port = Integer.parseInt(args[0]);
             if (port < 0)
@@ -18,29 +20,27 @@ public class Server {
                 throw new NullPointerException("Too big number!");
 
             ServerSocket serverSocket = new ServerSocket(port);
-            while (true) {
+            int currentNumberOfSessions = 0;
+            while (currentNumberOfSessions <= MAX_NUMBER_OF_SESSIONS) {
                 Socket socket = serverSocket.accept();
-
-                Thread thread = new Thread(new Session(socket));
-                thread.start();
+                OutputStream outputStream = socket.getOutputStream();
+                DataOutputStream dataOutputStream = new DataOutputStream(outputStream);
+                if (currentNumberOfSessions < MAX_NUMBER_OF_SESSIONS) {
+                    Thread thread = new Thread(new Session(socket));
+                    thread.start();
+                    dataOutputStream.writeInt(0);
+                    dataOutputStream.writeUTF("Connection is established.");
+                }
+                else {
+                    dataOutputStream.writeInt(1);
+                    dataOutputStream.writeUTF("Number of sessions is too big. Please, try later.");
+                }
+                currentNumberOfSessions++;
             }
-            /*Thread thread1 = new Thread(new Session(socket));
-            thread1.start();
-            Thread thread2 = new Thread(new Session(socket));
-            thread2.start();*/
 
-          /*  InputStream inputStream = socket.getInputStream();
-            DataInputStream dataInputStream = new DataInputStream(inputStream);
 
-            String message = dataInputStream.readUTF();
-            System.out.println(message);
 
-            message = dataInputStream.readUTF();
-            while (!message.equals("QUIT")){
-                System.out.println(message);
-                message = dataInputStream.readUTF();
-            }*/
-
-        } catch (IOException e) {}
+        } catch (IOException e) {
+        }
     }
 }
