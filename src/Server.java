@@ -7,6 +7,15 @@ import java.net.ServerSocket;
 import java.net.Socket;
 
 public class Server {
+    private static int currentNumberOfSessions = 0;
+    private static final Object lock = new Object();
+
+    public static void decrementNumberOfSessions() {
+        synchronized (lock) {
+            currentNumberOfSessions--;
+        }
+    }
+
     public static void main(String[] args) {
         try {
             int MAX_NUMBER_OF_SESSIONS = 5;
@@ -20,27 +29,25 @@ public class Server {
                 throw new NullPointerException("Too big number!");
 
             ServerSocket serverSocket = new ServerSocket(port);
-            int currentNumberOfSessions = 0;
-            while (currentNumberOfSessions <= MAX_NUMBER_OF_SESSIONS) {
+            while (true) {
                 Socket socket = serverSocket.accept();
                 OutputStream outputStream = socket.getOutputStream();
                 DataOutputStream dataOutputStream = new DataOutputStream(outputStream);
-                if (currentNumberOfSessions < MAX_NUMBER_OF_SESSIONS) {
-                    Thread thread = new Thread(new Session(socket));
-                    thread.start();
-                    dataOutputStream.writeInt(0);
-                    dataOutputStream.writeUTF("Connection is established.");
+                synchronized (lock) {
+                    if (currentNumberOfSessions < MAX_NUMBER_OF_SESSIONS) {
+                        Thread thread = new Thread(new Session(socket));
+                        thread.start();
+                        dataOutputStream.writeInt(0);
+                        dataOutputStream.writeUTF("Connection is established.");
+                        currentNumberOfSessions++;
+                    } else {
+                        dataOutputStream.writeInt(1);
+                        dataOutputStream.writeUTF("Number of sessions is too big. Please, try later.");
+                    }
                 }
-                else {
-                    dataOutputStream.writeInt(1);
-                    dataOutputStream.writeUTF("Number of sessions is too big. Please, try later.");
-                }
-                currentNumberOfSessions++;
             }
-
-
-
         } catch (IOException e) {
         }
+
     }
 }

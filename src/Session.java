@@ -8,10 +8,14 @@ import java.util.Scanner;
  */
 public class Session implements Runnable {
     private Socket socket;
-    public Session(Socket socket){
+
+    public Session(Socket socket) {
         this.socket = socket;
-    };
-    public void run(){
+    }
+
+    ;
+
+    public void run() {
         try {
             InputStream inputStream = socket.getInputStream();
             DataInputStream dataInputStream = new DataInputStream(inputStream);
@@ -24,7 +28,9 @@ public class Session implements Runnable {
                 System.out.println(message);
                 message = dataInputStream.readUTF();
             }
-        }catch (IOException e){}
+            Server.decrementNumberOfSessions();
+        } catch (IOException e) {
+        }
     }
 
 }

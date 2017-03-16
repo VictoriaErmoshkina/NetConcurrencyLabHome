@@ -1,6 +1,7 @@
 /**
  * Created by Виктория on 15.02.2017.
  */
+
 import java.io.*;
 import java.net.Socket;
 import java.util.Scanner;
@@ -24,22 +25,21 @@ public class Client {
             InputStream inputStream = socket.getInputStream();
             DataInputStream dataInputStream = new DataInputStream(inputStream);
             int connectingType = dataInputStream.readInt();
-            if (connectingType == 0){
+            if (connectingType == 0) {
                 System.out.println(dataInputStream.readUTF());
 
                 dataOutputStream.writeUTF("Peace be with you");
 
                 Scanner in = new Scanner(System.in);
                 String message = "";
-                while (!message.equals("QUIT")){
+                while (!message.equals("QUIT")) {
                     System.out.print("Message: ");
                     message = in.nextLine();
                     dataOutputStream.writeUTF(message);
                 }
-            }
-            else
+            } else
                 System.out.println(dataInputStream.readUTF());
+        } catch (IOException e) {
         }
-        catch (IOException e) {}
     }
 }
