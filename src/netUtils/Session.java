@@ -1,13 +1,14 @@
 package netUtils;
 
 import app.Server;
+import concurrentUtils.Stoppable;
 import java.io.*;
 import java.net.Socket;
 
 /**
  * Created by 14Ermoshkina on 17.02.2017.
  */
-public class Session implements Runnable {
+public class Session implements Stoppable {
     private Socket socket;
     private final int id;
     private MessageHandler messageHandler;
@@ -41,6 +42,16 @@ public class Session implements Runnable {
 
         } catch (IOException e) {
             System.out.println(e.getMessage());
+        }
+    }
+
+    @Override
+    public void stop() throws IOException {
+        if (socket != null) {
+            OutputStream outputStream = socket.getOutputStream();
+            DataOutputStream dataOutputStream = new DataOutputStream(outputStream);
+            dataOutputStream.writeUTF("Application is closed.");
+
         }
     }
 }

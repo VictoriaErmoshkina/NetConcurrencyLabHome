@@ -5,10 +5,10 @@ import java.io.IOException;
 /**
  * Created by Виктория on 24.03.2017.
  */
-public class WorkerThread implements Runnable {
+public class WorkerThread implements Stoppable {
     private Thread thread;
     private ThreadPool threadPool;
-    private Runnable currentTask = null;
+    private Stoppable currentTask = null;
     private final Object lock = new Object();
     private boolean isActive;
 
@@ -19,7 +19,7 @@ public class WorkerThread implements Runnable {
         thread.start();
     }
 
-    public void execute(Runnable task) {
+    public void execute(Stoppable task) {
         synchronized (lock) {
             if (this.currentTask != null)
                 throw new IllegalStateException("Worker is busy");
@@ -53,5 +53,12 @@ public class WorkerThread implements Runnable {
         }
     }
 
-
+    @Override
+    public void stop() throws IOException {
+        if (isActive)
+            this.isActive = false;
+        if (this.currentTask != null)
+            this.currentTask.stop();
+        thread.interrupt();
+    }
 }

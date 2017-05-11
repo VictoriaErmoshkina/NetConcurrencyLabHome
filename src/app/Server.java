@@ -4,6 +4,7 @@ package app; /**
 
 import concurrentUtils.Channel;
 import concurrentUtils.Dispatcher;
+import concurrentUtils.Stoppable;
 import concurrentUtils.ThreadPool;
 import netUtils.Host;
 import java.io.*;
@@ -48,12 +49,22 @@ public class Server {
                 throw new IOException("Too big number!");
 
             Channel channel = new Channel(maxNumberOfSessions / 2);
-            Runnable dispatcher = new Dispatcher(channel, Server.threadPool);
+            Stoppable dispatcher = new Dispatcher(channel, Server.threadPool);
             Thread dispatcherThread = new Thread(dispatcher);
-            Runnable host = new Host(port, channel, new PrintMessageHandlerFactory());
+            Stoppable host = new Host(port, channel, new PrintMessageHandlerFactory());
             Thread hostThread = new Thread(host);
 
-
+            //Обработка внезапной остановки приложения
+            Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+                try {
+                    host.stop();
+                    dispatcher.stop();
+                    Server.threadPool.stop();
+                    System.out.println("Server is closed.");
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }));
 
             hostThread.start();
             dispatcherThread.start();

@@ -2,6 +2,7 @@ package netUtils;
 
 
 import concurrentUtils.Channel;
+import concurrentUtils.Stoppable;
 import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -9,7 +10,7 @@ import java.net.Socket;
 /**
  * Created by Виктория on 31.03.2017.
  */
-public class Host implements Runnable {
+public class Host implements Stoppable {
     private ServerSocket serverSocket;
     private Channel channel;
     MessageHandlerFactory messageHandlerFactory;
@@ -40,5 +41,8 @@ public class Host implements Runnable {
         }
     }
 
-
+    @Override
+    public void stop() {
+        isActive = false;
+    }
 }

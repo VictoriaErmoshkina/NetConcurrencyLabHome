@@ -8,7 +8,7 @@ import java.util.LinkedList;
  */
 public class ThreadPool {
     private int maxSize;
-    private LinkedList<Runnable> allWorkers = new LinkedList<>();
+    private LinkedList<Stoppable> allWorkers = new LinkedList<>();
     private Channel freeWorkers;
 
     public ThreadPool(int maxSize) {
@@ -19,7 +19,7 @@ public class ThreadPool {
         freeWorkers.put(workerThread);
     }
 
-    public synchronized void execute(Runnable task) {
+    public synchronized void execute(Stoppable task) {
         if (freeWorkers.getSize() == 0 && allWorkers.size() < maxSize) {
             WorkerThread workerThread = new WorkerThread(this);
             allWorkers.addLast(workerThread);
@@ -42,5 +42,9 @@ public class ThreadPool {
         return allWorkers.size() - freeWorkers.getSize();
     }
 
-
+    public void stop() throws IOException {
+        for (Stoppable worker : allWorkers) {
+            worker.stop();
+        }
+    }
 }
