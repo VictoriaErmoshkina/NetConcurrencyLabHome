@@ -7,6 +7,8 @@ import concurrentUtils.Dispatcher;
 import concurrentUtils.Stoppable;
 import concurrentUtils.ThreadPool;
 import netUtils.Host;
+import netUtils.MessageHandlerFactory;
+
 import java.io.*;
 
 public class Server {
@@ -51,7 +53,8 @@ public class Server {
             Channel channel = new Channel(maxNumberOfSessions / 2);
             Stoppable dispatcher = new Dispatcher(channel, Server.threadPool);
             Thread dispatcherThread = new Thread(dispatcher);
-            Stoppable host = new Host(port, channel, new PrintMessageHandlerFactory());
+            MessageHandlerFactory messageHandlerFactory = new PrintMessageHandlerFactory();
+            Stoppable host = new Host(port, channel, messageHandlerFactory);
             Thread hostThread = new Thread(host);
 
             //Обработка внезапной остановки приложения

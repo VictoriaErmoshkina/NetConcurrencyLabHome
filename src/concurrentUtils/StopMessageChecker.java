@@ -1,6 +1,7 @@
 package concurrentUtils;
 
 import app.Client;
+
 import java.io.DataInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -12,6 +13,7 @@ import java.net.Socket;
 public class StopMessageChecker implements Runnable {
     Socket socket;
     Client client;
+
     public StopMessageChecker(Socket socket, Client client) {
         this.socket = socket;
         this.client = client;
@@ -28,9 +30,13 @@ public class StopMessageChecker implements Runnable {
             while (true) {
                 message = dataInputStream.readUTF();
                 if (message.equals("Application is closed.")) {
-                    System.out.println("pr");
                     this.client.stop();
                     break;
+                } else if (message.startsWith("re")) {
+                    message = dataInputStream.readUTF();
+                    System.out.print(message);
+                } else if (!message.equals("")) {
+                    System.out.println(message);
                 }
             }
 

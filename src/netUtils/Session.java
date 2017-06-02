@@ -2,6 +2,7 @@ package netUtils;
 
 import app.Server;
 import concurrentUtils.Stoppable;
+
 import java.io.*;
 import java.net.Socket;
 
@@ -29,16 +30,14 @@ public class Session implements Stoppable {
 
             dataOutputStream.writeUTF("Connection is established.");
             System.out.println(dataInputStream.readUTF() + " by client #" + this.id);
-
+            this.messageHandler.setDataOutputStream(dataOutputStream);
+            this.messageHandler.setId(this.id);
             String messageFromClient = "";
             while (!messageFromClient.equals(":quit")) {
                 messageFromClient = dataInputStream.readUTF();
-                messageHandler.handle("Message from client #" + this.id + ": " + messageFromClient);
-                if (messageFromClient.equals(":cn")) {
-                    messageHandler.handle(String.valueOf(Server.getCurrentNumberOfSessions()));
-                }
+                messageHandler.handle(messageFromClient);
             }
-            messageHandler.handle("Client #" + this.id + " is disconnected.");
+            messageHandler.disconnect();
 
         } catch (IOException e) {
             System.out.println(e.getMessage());

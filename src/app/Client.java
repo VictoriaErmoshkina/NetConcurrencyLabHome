@@ -3,13 +3,15 @@ package app; /**
  */
 
 import concurrentUtils.StopMessageChecker;
+
 import java.io.*;
 import java.net.Socket;
+import java.util.Scanner;
 
 public class Client {
     private String hostname;
     private int port;
-    private  boolean isActive = true;
+    private boolean isActive = true;
 
     public Client(String hostname, int port) {
         this.hostname = hostname;
@@ -31,7 +33,7 @@ public class Client {
         this.isActive = false;
     }
 
-    public void run(){
+    public void run() {
         try {
             Socket socket = new Socket(this.hostname, this.port);
             OutputStream outputStream = socket.getOutputStream();
@@ -41,17 +43,22 @@ public class Client {
             String connectingMessage = dataInputStream.readUTF();
             System.out.println(connectingMessage);
             dataOutputStream.writeUTF("Peace be with you");
-            BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
+            Scanner in = new Scanner(System.in);
             String message = "";
             StopMessageChecker stopMessageChecker = new StopMessageChecker(socket, this);
-            System.out.print("Message: ");
+            System.out.print("> ");
             while (!message.equals(":quit")) {
                 if (this.isActive) {
-                    if (reader.ready()) {
-                        message = reader.readLine();
+                    if (in.hasNext()) {
+                        message = in.nextLine();
                         if (this.isActive) {
                             dataOutputStream.writeUTF(message);
-                            System.out.print("Message: ");
+                            try {
+                                Thread.sleep(100);
+                            } catch (InterruptedException e) {
+                                System.out.println(e.getMessage());
+                            }
+                            System.out.print("> ");
                         } else {
                             break;
                         }
@@ -62,7 +69,7 @@ public class Client {
                 }
             }
             System.out.println("Application is closed.");
-        } catch (IOException e){
+        } catch (IOException e) {
             System.out.println(e.getMessage());
             this.stop();
         }
